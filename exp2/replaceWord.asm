@@ -1,22 +1,16 @@
 section .data
-    name db 'abc def'
+    name db 'abc def  ,'
     namelen equ $-name
 
 section .text
     global _start
+    
 _start:
     ; Print initial string
     mov eax, 4
     mov ebx, 1
     mov ecx, name
     mov edx, namelen
-    int 80h
-
-    ; Print newline
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, nl
-    mov edx, nllen
     int 80h
 
     ; Replace "abc" with "xyz"
@@ -27,13 +21,6 @@ _start:
     mov ebx, 1
     mov ecx, name
     mov edx, namelen
-    int 80h
-
-    ; Print newline
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, nl
-    mov edx, nllen
     int 80h
 
     ; Exit call
