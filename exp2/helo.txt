@@ -1,0 +1,8 @@
+Mathematical operations of add, sub, mul, div
+1. Write an alp to enter 2 nos and display sum
+2. to poerform add, sub, mul, div of 2 entered nos
+3. area and perimeter of rect and triangle
+4. sum of 3 entered nos
+5. inputs a no and displays d next 4 nos usiung increament operator
+6. all odd nos from 0-9 (using mod2)
+7. display muls of 3 from 0-9
