@@ -8,6 +8,7 @@ section .data
     msgEnterB db "Enter triangle side b: ", 0
     msgEnterC db "Enter triangle side c: ", 0
     msgEnterH db "Enter triangle height: ", 0
+    msgEnterE db "Enter triangle base: ", 0
     msgTriangleArea db "Triangle Area: ", 0
     msgTrianglePerimeter db "Triangle Perimeter: ", 0
 
@@ -24,6 +25,7 @@ section .bss
     sideB resb 10
     sideC resb 10
     height resb 10
+    base resb 10
     triangleArea resb 10
     trianglePerimeter resb 10
 
@@ -31,7 +33,6 @@ section .text
     global _start
 
 _start:
-    ; --- RECTANGLE INPUT ---
     mov eax, 4
     mov ebx, 1
     mov ecx, msgEnterLength
@@ -56,18 +57,15 @@ _start:
     mov edx, 10
     int 80h
 
-    ; Convert inputs to integers
     mov eax, [length]
     sub eax, '0'
     mov ebx, [width]
     sub ebx, '0'
 
-    ; Calculate Rectangle Area (length * width)
     mul ebx
     add eax, '0'
     mov [rectangleArea], eax
 
-    ; Print Rectangle Area
     mov eax, 4
     mov ebx, 1
     mov ecx, msgRectangleArea
@@ -86,17 +84,15 @@ _start:
     mov edx, 1
     int 80h
 
-    ; Calculate Rectangle Perimeter (2 * (length + width))
     mov eax, [length]
     sub eax, '0'
     mov ebx, [width]
     sub ebx, '0'
     add eax, ebx
-    shl eax, 1  ; Multiply by 2
+    shl eax, 1
     add eax, '0'
     mov [rectanglePerimeter], eax
 
-    ; Print Rectangle Perimeter
     mov eax, 4
     mov ebx, 1
     mov ecx, msgRectanglePerimeter
@@ -115,11 +111,11 @@ _start:
     mov edx, 1
     int 80h
 
-    ; --- TRIANGLE INPUT ---
+
     mov eax, 4
     mov ebx, 1
     mov ecx, msgEnterA
-    mov edx, 21
+    mov edx, 24
     int 80h
 
     mov eax, 3
@@ -131,7 +127,7 @@ _start:
     mov eax, 4
     mov ebx, 1
     mov ecx, msgEnterB
-    mov edx, 21
+    mov edx, 24
     int 80h
 
     mov eax, 3
@@ -143,7 +139,7 @@ _start:
     mov eax, 4
     mov ebx, 1
     mov ecx, msgEnterC
-    mov edx, 21
+    mov edx, 24
     int 80h
 
     mov eax, 3
@@ -164,7 +160,18 @@ _start:
     mov edx, 10
     int 80h
 
-    ; Convert inputs to integers
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msgEnterE
+    mov edx, 22
+    int 80h
+
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, base
+    mov edx, 10
+    int 80h
+
     mov eax, [sideA]
     sub eax, '0'
     mov ebx, [sideB]
@@ -173,14 +180,14 @@ _start:
     sub ecx, '0'
     mov edx, [height]
     sub edx, '0'
+    mov edx, [base]
+    sub edx, '0'
 
-    ; Calculate Triangle Perimeter (a + b + c)
     add eax, ebx
     add eax, ecx
     add eax, '0'
     mov [trianglePerimeter], eax
 
-    ; Print Triangle Perimeter
     mov eax, 4
     mov ebx, 1
     mov ecx, msgTrianglePerimeter
@@ -199,17 +206,15 @@ _start:
     mov edx, 1
     int 80h
 
-    ; Calculate Triangle Area (0.5 * base * height)
-    mov eax, [sideA]  ; Assume base = sideA
+    mov eax, [base]  
     sub eax, '0'
     mov ebx, [height]
     sub ebx, '0'
     mul ebx
-    shr eax, 1  ; Divide by 2
+    shr eax, 1 
     add eax, '0'
     mov [triangleArea], eax
 
-    ; Print Triangle Area
     mov eax, 4
     mov ebx, 1
     mov ecx, msgTriangleArea
@@ -228,7 +233,6 @@ _start:
     mov edx, 1
     int 80h
 
-    ; Exit
     mov eax, 1
     mov ebx, 0
     int 80h

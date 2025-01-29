@@ -11,51 +11,44 @@ section .data
 section .bss
     number1 resb 1
     number2 resb 1
-    output resb 1   ; Stores ASCII result for printing
+    output resb 1 
 
 section .text
     global _start
 
 _start:
-    ; Prompt for first number
     mov eax, 4
     mov ebx, 1
     mov ecx, msg1
-    mov edx, 18
+    mov edx, 20
     int 80h
 
-    ; Read first number (single digit)
     mov eax, 3
     mov ebx, 0
     mov ecx, number1
-    mov edx, 2  ; Read 2 bytes to capture newline
+    mov edx, 2 
     int 80h
 
-    ; Convert ASCII to integer
     mov al, [number1]
     sub al, '0'
     mov [number1], al
 
-    ; Prompt for second number
     mov eax, 4
     mov ebx, 1
     mov ecx, msg2
-    mov edx, 19
+    mov edx, 21
     int 80h
 
-    ; Read second number (single digit)
     mov eax, 3
     mov ebx, 0
     mov ecx, number2
-    mov edx, 2  ; Read 2 bytes to capture newline
+    mov edx, 2  
     int 80h
 
-    ; Convert ASCII to integer
     mov al, [number2]
     sub al, '0'
     mov [number2], al
 
-    ; ---- Addition ----
     mov al, [number1]
     add al, [number2]
     add al, '0'   ; Convert to ASCII
@@ -79,10 +72,9 @@ _start:
     mov edx, 1
     int 80h
 
-    ; ---- Subtraction ----
     mov al, [number1]
     sub al, [number2]
-    add al, '0'   ; Convert to ASCII
+    add al, '0'  
     mov [output], al
 
     mov eax, 4
