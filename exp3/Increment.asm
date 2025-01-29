@@ -36,9 +36,8 @@ _start:
     mov ecx, 4        
     mov al, [num]    
 
-next_num:
-    inc al          
-    add al, '0'      
+    inc al  
+    add al, '0'        
     mov [num], al      
 
     mov eax, 4         
@@ -47,8 +46,23 @@ next_num:
     mov edx, 1       
     int 80h
 
-    sub al, '0'       
-    loop next_num    
+    mov eax, 4      
+    mov ebx, 1          
+    mov ecx, newline   
+    mov edx, 1      
+    int 80h
+
+    mov ecx, 4        
+    mov al, [num]    
+
+    inc al         
+    mov [num], al      
+
+    mov eax, 4         
+    mov ebx, 1     
+    lea ecx, [num]      
+    mov edx, 1       
+    int 80h
 
     mov eax, 4      
     mov ebx, 1          
@@ -56,7 +70,42 @@ next_num:
     mov edx, 1      
     int 80h
 
+    mov ecx, 4        
+    mov al, [num]    
 
-    mov eax, 1   
-    mov ebx, 0   
+    inc al          
+    mov [num], al      
+
+    mov eax, 4         
+    mov ebx, 1     
+    lea ecx, [num]      
+    mov edx, 1       
     int 80h
+
+    mov eax, 4      
+    mov ebx, 1          
+    mov ecx, newline   
+    mov edx, 1      
+    int 80h
+
+    mov ecx, 4        
+    mov al, [num]    
+
+    inc al          
+    mov [num], al      
+
+    mov eax, 4         
+    mov ebx, 1     
+    lea ecx, [num]      
+    mov edx, 1       
+    int 80h
+
+    mov eax, 4      
+    mov ebx, 1          
+    mov ecx, newline   
+    mov edx, 1      
+    int 80h
+
+mov eax, 1   
+mov ebx, 0   
+int 80h
