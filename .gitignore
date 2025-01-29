@@ -1,2 +1,12 @@
-*.o*
-name
+# Ignore everything
+*
+
+# Do not ignore .gitignore itself
+!.gitignore
+
+# Do not ignore .asm files
+!*.asm
+
+#dont ignore folders
+!*/
+!*/*.asm
