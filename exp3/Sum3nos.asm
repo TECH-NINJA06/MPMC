@@ -62,7 +62,6 @@ _start:
     add eax, '0'
     mov [result], al
 
-    ; --- OUTPUT: Sum ---
     mov eax, 4
     mov ebx, 1
     mov ecx, msgResult
