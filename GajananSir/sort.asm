@@ -1,36 +1,38 @@
 section .data
-    array db 1, 3, 2, 5, 4, 6, 7, 8, 9, 0 
-    size db 10                                                                        
-    newline db 0xA
+    array db 5, 3, 8, 1, 2, 9, 4, 7, 6, 0  ; Array of 10 numbers
+    size equ 10                            ; Array size
+    newline db 0xA                         ; Newline character
 
 section .bss
-    buffer resb 3
+    buffer resb 1                          ; Buffer to store ASCII number
 
 section .text
     global _start
 
 _start:
-    movzx ecx, byte [size]
-    xor esi, esi
+    ; Initialize selection sort
+    mov ecx, size
+    dec ecx         ; ecx = size - 1
+    xor esi, esi    ; i = 0
 
-sort_array:
+sort_loop:
     cmp esi, ecx
-    jge done_sorting
+    jge print_sorted  ; If i >= size - 1, sorting is done
 
-    mov edi, esi
+    mov edi, esi  ; min_index = i
     mov ebx, esi
-    inc ebx
+    inc ebx       ; j = i + 1
 
 inner_loop:
-    cmp ebx, ecx
-    jge swap_elements
+    cmp ebx, size
+    jge swap_elements  ; If j >= size, move to swap
 
     mov al, [array + edi]
     mov dl, [array + ebx]
     cmp al, dl
     jle no_swap
 
-    mov edi, ebx
+    mov edi, ebx  ; Update min_index
 
 no_swap:
     inc ebx
@@ -38,28 +40,38 @@ no_swap:
 
 swap_elements:
     cmp esi, edi
-    je no_swap_needed
+    je skip_swap  ; If min_index == i, no swap needed
 
     mov al, [array + esi]
     mov dl, [array + edi]
     mov [array + esi], dl
     mov [array + edi], al
 
-no_swap_needed:
+skip_swap:
     inc esi
-    jmp sort_array
+    jmp sort_loop
 
-done_sorting:
-    movzx ecx, byte [size]
+; =====================
+; PRINT SORTED ARRAY
+; =====================
+print_sorted:
     xor esi, esi
 
-print_array:
-    cmp esi, ecx
-    jge exit_program
+print_loop:
+    cmp esi, size
+    jge exit_program  ; Exit after printing all numbers
 
-    movzx eax, byte [array + esi]
-    call print_number
+    movzx eax, byte [array + esi]  ; Load value from array
+    add eax, '0'                   ; Convert number to ASCII
+    mov [buffer], al
 
+    mov eax, 4                      ; syscall: sys_write
+    mov ebx, 1                      ; stdout
+    mov ecx, buffer                 ; Address of buffer
+    mov edx, 1                      ; Print 1 character
+    int 0x80
+
+    ; Print newline
     mov eax, 4
     mov ebx, 1
     mov ecx, newline
@@ -67,33 +79,11 @@ print_array:
     int 0x80
 
     inc esi
-    jmp print_array
+    jmp print_loop
 
-print_number:
-    mov ebx, 10
-    mov edi, buffer + 2
-    mov byte [edi], 0
-
-convert_loop:
-    dec edi
-    xor edx, edx
-    div ebx
-    add dl, '0'
-    mov [edi], dl
-    test eax, eax
-    jnz convert_loop
-
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, edi
-    mov edx, 3
-    sub edx, edi
-    add edx, buffer
-    sub edx, buffer
-    int 0x80
-
-    ret
-
+; =====================
+; EXIT PROGRAM
+; =====================
 exit_program:
     mov eax, 1
     xor ebx, ebx
