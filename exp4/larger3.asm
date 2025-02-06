@@ -14,7 +14,6 @@ section .text
     global _start
 
 _start:
-    ; Prompt and read first number
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt1
@@ -31,7 +30,6 @@ _start:
     sub eax, '0'
     mov [num1], eax
 
-    ; Prompt and read second number
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt2
@@ -48,7 +46,6 @@ _start:
     sub eax, '0'
     mov [num2], eax
 
-    ; Prompt and read third number
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt3
@@ -65,7 +62,6 @@ _start:
     sub eax, '0'
     mov [num3], eax
 
-    ; Compare numbers
     mov eax, [num1]
     mov ebx, [num2]
     cmp eax, ebx
@@ -100,7 +96,7 @@ num1_larger:
     mov ebx, 1
     mov ecx, num1
     mov edx, 1
-    int 0x80
+    int 80h
     jmp done
 
 num2_larger:

@@ -15,7 +15,7 @@ _start:
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt1
-    mov edx, 20
+    mov edx, 21
     int 80h
 
     mov eax, 3
@@ -31,7 +31,7 @@ _start:
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt2
-    mov edx, 21
+    mov edx, 22
     int 80h
 
     mov eax, 3
@@ -54,7 +54,7 @@ num1_larger:
     mov eax, 4
     mov ebx, 1
     mov ecx, larger
-    mov edx, 22
+    mov edx, 23
     int 80h
 
     mov eax, [num1]
@@ -64,14 +64,14 @@ num1_larger:
     mov ebx, 1
     mov ecx, num1
     mov edx, 1
-    int 0x80
+    int 80h
     jmp done
 
 num2_larger:
     mov eax, 4
     mov ebx, 1
     mov ecx, larger
-    mov edx, 22
+    mov edx, 23
     int 80h
 
     mov eax, [num2]

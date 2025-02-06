@@ -1,4 +1,6 @@
 section .data
+    prompt1 db "Enter the number: ", 0
+    promLen equ $-prompt1
     msg_greater db 'The number is greater than 5', 0
     g_len equ $-msg_greater
     msg_less db 'The number is less than 5', 0
@@ -13,6 +15,12 @@ section .text
     global _start
 
 _start:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, prompt1
+    mov edx, promLen
+    int 80h
+
     mov eax, 3
     mov ebx, 0
     mov ecx, num
