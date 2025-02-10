@@ -65,8 +65,8 @@ _start:
     mov eax, [num1]
     mov ebx, [num2]
     cmp eax, ebx
-    jl compare_num1_num3
-    jg compare_num2_num3
+    jle compare_num1_num3
+    jge compare_num2_num3
 
 compare_num1_num3:
     mov eax, [num1]

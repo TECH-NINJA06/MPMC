@@ -65,22 +65,22 @@ _start:
     mov eax, [num1]
     mov ebx, [num2]
     cmp eax, ebx
-    jg compare_num1_num3
-    jl compare_num2_num3
+    jge compare_num1_num3
+    jle compare_num2_num3
 
 compare_num1_num3:
     mov eax, [num1]
     mov ebx, [num3]
     cmp eax, ebx
-    jg num1_larger
-    jl num3_larger
+    jge num1_larger
+    jle num3_larger
 
 compare_num2_num3:
     mov eax, [num2]
     mov ebx, [num3]
     cmp eax, ebx
-    jg num2_larger
-    jl num3_larger
+    jge num2_larger
+    jle num3_larger
 
 num1_larger:
     mov eax, 4

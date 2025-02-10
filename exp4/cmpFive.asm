@@ -1,12 +1,12 @@
 section .data
     prompt1 db "Enter the number: ", 0
     promLen equ $-prompt1
-    msg_greater db 'The number is greater than 5', 0
-    g_len equ $-msg_greater
-    msg_less db 'The number is less than 5', 0
-    l_len equ $-msg_less
-    msg_equal db 'The number is equal to 5', 0
-    e_len equ $-msg_equal
+    greater db 'The number is greater than 5', 0
+    g_len equ $-greater
+    lesser db 'The number is less than 5', 0
+    l_len equ $-lesser
+    equal db 'The number is equal to 5', 0
+    e_len equ $-equal
 
 section .bss
     num resb 1
@@ -38,7 +38,7 @@ _start:
 greater:
     mov eax, 4
     mov ebx, 1
-    mov ecx, msg_greater
+    mov ecx, greater
     mov edx, g_len
     int 80h
     jmp exit
@@ -46,7 +46,7 @@ greater:
 less:
     mov eax, 4
     mov ebx, 1
-    mov ecx, msg_less
+    mov ecx, lesser
     mov edx, l_len
     int 80h
     jmp exit
@@ -54,7 +54,7 @@ less:
 equal:
     mov eax, 4
     mov ebx, 1
-    mov ecx, msg_equal
+    mov ecx, equal
     mov edx, e_len
     int 80h
     jmp exit

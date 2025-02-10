@@ -16,7 +16,6 @@ section .text
     global _start
 
 _start:
-    ; Read first string
     mov eax, 4
     mov ebx, 1
     mov ecx, msg1
@@ -31,7 +30,6 @@ _start:
     mov [len1], al
     mov byte [str1 + eax - 1], 0
 
-    ; Read second string
     mov eax, 4
     mov ebx, 1
     mov ecx, msg2
@@ -46,13 +44,11 @@ _start:
     mov [len2], al
     mov byte [str2 + eax - 1], 0
 
-    ; Compare strings
     mov esi, str1
     mov edi, str2
     mov ecx, 100
     repe cmpsb
 
-    ; Check result
     je strings_equal
     jne strings_not_equal
 
