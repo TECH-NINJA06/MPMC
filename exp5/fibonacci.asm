@@ -1,70 +1,70 @@
+%macro write 2
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, %1
+    mov edx, %2
+    int 80h
+%endmacro
+
+%macro read 2
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, %1
+    mov edx, %2
+    int 80h
+%endmacro
+
+%macro ADD 2
+    movzx eax, byte [%1]
+    sub al, '0'
+    movzx ebx, byte [%2]
+    sub bl, '0'
+    add eax, ebx
+    add al, '0'
+    mov [result], al
+%endmacro
+
 section .data
-    fmt db "%d ", 0
+    prompt1 db 'Enter n:   '
+    len1 equ $ - prompt1
+    msg db 'Series:   '
+    len2 equ $ - msg
+    space db ' '
+    newline db 10
 
 section .bss
-    num1 resd 1
-    num2 resd 1
-    num3 resd 1
-    counter resd 1
+    n resb 2
+    num1 resb 2
+    num2 resb 2
+    result resb 2
 
 section .text
     global _start
 
-%macro PRINT_NUM 1
-    mov eax, %1
-    call itoa
-    mov eax, 4          ; sys_write
-    mov ebx, 1          ; file descriptor (stdout)
-    mov ecx, esp        ; buffer to write (top of the stack)
-    mov edx, edi        ; number of bytes
-    int 0x80
-    add esp, edi        ; clean up the stack
-%endmacro
-
-itoa:
-    push ebp
-    mov ebp, esp
-    sub esp, 12         ; reserve space on the stack
-    mov edi, 0          ; character count
-    mov ebx, 10
-    .convert:
-        xor edx, edx
-        div ebx
-        add dl, '0'
-        push edx
-        inc edi
-        test eax, eax
-        jnz .convert
-    mov eax, edi
-    leave
-    ret
-
 _start:
-    mov dword [num1], 0
-    mov dword [num2], 1
-    mov dword [counter], 9
+    write prompt1, len1
+    read n, 2
+    write msg, len2
+    mov byte [num1], '0'
+    mov byte [num2], '1'
+    movzx ecx, byte [n]
+    sub ecx, '0'
 
-    PRINT_NUM [num1]
-    PRINT_NUM [num2]
+loop:
+    push ecx
+    write num1, 1
+    write space, 1
 
-    .loop:
-        mov eax, [num1]
-        add eax, [num2]
-        mov [num3], eax
+    ADD num1, num2
 
-        PRINT_NUM [num3]
-
-        mov eax, [num2]
-        mov [num1], eax
-
-        mov eax, [num3]
-        mov [num2], eax
-
-        sub dword [counter], 1
-        cmp dword [counter], 0
-        jne .loop
-
-    ; Exit the program
+    mov al, [num2]
+    mov [num1], al
+    mov al, [result]
+    mov [num2], al
+    pop ecx
+    dec ecx
+    jnz loop
+    write newline, 1
     mov eax, 1
     xor ebx, ebx
     int 0x80
