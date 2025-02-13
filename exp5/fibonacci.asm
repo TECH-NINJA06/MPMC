@@ -25,10 +25,10 @@
 %endmacro
 
 section .data
-    prompt1 db 'Enter n:   '
-    len1 equ $ - prompt1
-    msg db 'Series:   '
-    len2 equ $ - msg
+    prompt db 'Enter n: '
+    prompt_len equ $ - prompt
+    msg db 'Series: '
+    msg_len equ $ - msg
     space db ' '
     newline db 10
 
@@ -42,9 +42,9 @@ section .text
     global _start
 
 _start:
-    write prompt1, len1
+    write prompt, prompt_len
     read n, 2
-    write msg, len2
+    write msg, msg_len
     mov byte [num1], '0'
     mov byte [num2], '1'
     movzx ecx, byte [n]
@@ -67,4 +67,4 @@ loop:
     write newline, 1
     mov eax, 1
     xor ebx, ebx
-    int 0x80
+    int 80h

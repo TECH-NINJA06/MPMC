@@ -83,37 +83,31 @@ _start:
     print msg2, 21
     read_input number2, 2
 
-    ; ---- Addition ----
     calc_add number1, number2
     print resultAdd, 5
     print output, 1
     print newline, 1
 
-    ; ---- Subtraction ----
     calc_sub number1, number2
     print resultSub, 11
     print output, 1
     print newline, 1
 
-    ; ---- Multiplication ----
     calc_mul number1, number2
     print resultMul, 9
     print output, 1
     print newline, 1
 
-    ; ---- Division ----
     calc_div number1, number2
     print resultQuo, 10
     print output, 1
     print newline, 1
 
-    ; ---- Remainder ----
     calc_rem number1, number2
     print resultRem, 10
     print output, 1
     print newline, 1
 
-    ; Exit program
     mov eax, 1
     mov ebx, 0
     int 80h

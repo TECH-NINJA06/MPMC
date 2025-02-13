@@ -1,5 +1,5 @@
 section .data
-    num db '12345', 0
+    num db '2', 0
 
 section .bss
 
@@ -8,7 +8,7 @@ section .bss
     mov ebx, %1
     mov ecx, %2
     mov edx, %3
-    int 0x80
+    int 80h
 %endmacro
 
 section .text
@@ -18,4 +18,4 @@ _start:
 
     mov eax, 1
     xor ebx, ebx
-    int 0x80
+    int 80h
