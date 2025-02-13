@@ -17,6 +17,47 @@
     mov [%1], al
 %endmacro
 
+%macro calc_add 2
+    mov al, [%1]
+    add al, [%2]
+    add al, '0'
+    mov [output], al
+%endmacro
+
+%macro calc_sub 2
+    mov al, [%1]
+    sub al, [%2]
+    add al, '0'
+    mov [output], al
+%endmacro
+
+%macro calc_mul 2
+    mov al, [%1]
+    mov bl, [%2]
+    mul bl
+    add al, '0'
+    mov [output], al
+%endmacro
+
+%macro calc_div 2
+    mov al, [%1]
+    mov ah, 0
+    mov bl, [%2]
+    div bl
+    add al, '0'
+    mov [output], al
+%endmacro
+
+%macro calc_rem 2
+    mov al, [%1]
+    mov ah, 0
+    mov bl, [%2]
+    div bl
+    mov al, ah
+    add al, '0'
+    mov [output], al
+%endmacro
+
 section .data
     msg1 db "Enter first number: ", 0
     msg2 db "Enter second number: ", 0
@@ -43,54 +84,31 @@ _start:
     read_input number2, 2
 
     ; ---- Addition ----
-    mov al, [number1]
-    add al, [number2]
-    add al, '0'   ; Convert to ASCII
-    mov [output], al
-
+    calc_add number1, number2
     print resultAdd, 5
     print output, 1
     print newline, 1
 
     ; ---- Subtraction ----
-    mov al, [number1]
-    sub al, [number2]
-    add al, '0'  
-    mov [output], al
-
+    calc_sub number1, number2
     print resultSub, 11
     print output, 1
     print newline, 1
 
     ; ---- Multiplication ----
-    mov al, [number1]
-    mov bl, [number2]
-    mul bl
-    add al, '0'   ; Convert to ASCII
-    mov [output], al
-
+    calc_mul number1, number2
     print resultMul, 9
     print output, 1
     print newline, 1
 
     ; ---- Division ----
-    mov al, [number1]
-    mov ah, 0
-    mov bl, [number2]
-    div bl    ; AL = quotient, AH = remainder
-
-    add al, '0'   ; Convert quotient to ASCII
-    mov [output], al
-
+    calc_div number1, number2
     print resultQuo, 10
     print output, 1
     print newline, 1
 
     ; ---- Remainder ----
-    mov al, ah  ; Remainder is in AH
-    add al, '0'   ; Convert remainder to ASCII
-    mov [output], al
-
+    calc_rem number1, number2
     print resultRem, 10
     print output, 1
     print newline, 1
