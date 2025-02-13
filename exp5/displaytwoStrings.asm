@@ -1,8 +1,8 @@
 section .data
-    msg1 db "First number: ", 0
-    msg2 db "Second number: ", 0
-    num1 db '5', 0
-    num2 db '3', 0
+    msg1 db "First string: ", 0
+    msg2 db "Second string: ", 0
+    str1 db "Hi", 0
+    str2 db "World", 0
 
 section .bss
 
@@ -19,10 +19,10 @@ section .text
 
 _start:
     write msg1, 14
-    write num1, 1
+    write str1, 5
 
     write msg2, 15
-    write num2, 1
+    write str2, 5
 
     ; Exit
     mov eax, 1
