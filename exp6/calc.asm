@@ -190,7 +190,7 @@ sub_nums:
     mov [output], al
     mov esp, ebp
     pop ebp
-    ret 8
+    ret 
 
 mul_nums:
     push ebp
@@ -204,7 +204,7 @@ mul_nums:
     mov [output], al
     mov esp, ebp
     pop ebp
-    ret 8
+    ret 
 
 div_nums:
     push ebp
@@ -219,7 +219,7 @@ div_nums:
     mov [output], al
     mov esp, ebp
     pop ebp
-    ret 8
+    ret 
 
 rem_nums:
     push ebp
@@ -235,7 +235,7 @@ rem_nums:
     mov [output], al
     mov esp, ebp
     pop ebp
-    ret 8
+    ret
 
 exp_nums:
     push ebp
@@ -250,17 +250,16 @@ exp_nums:
     cmp bl, 0
     je exp_done           
     
-    mov cl, al       
+    mov dl, al       
     dec bl           
     
 exp_loop:
     cmp bl, 0
     je exp_done
     
-    mul cl               ; multiply result by base
+    mul dl               ; multiply result by base
     mov cl, al           ; save result
-    mov al, [ebp + 12]   ; restore base
-    mov al, [eax]
+    mov al, dl           ; restore base
     
     dec bl
     jmp exp_loop
@@ -272,4 +271,4 @@ exp_done:
     
     mov esp, ebp
     pop ebp
-    ret 8
+    ret 
