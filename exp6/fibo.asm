@@ -87,7 +87,7 @@ fib_loop:
     
     mov esp, ebp
     pop ebp
-    ret 
+    ret 4
 
 add_nums:
     push ebp
@@ -107,4 +107,4 @@ add_nums:
     
     mov esp, ebp
     pop ebp
-    ret 
+    ret 8
