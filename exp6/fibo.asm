@@ -16,38 +16,55 @@ section .text
     global _start
 
 _start:
+    call write_prompt
+    call read_input
+    call write_msg
+    
+    movzx ecx, byte [n]
+    sub ecx, '0'
+    cmp ecx, 0
+    je exit_newline
+    push ecx
+    call fibonacci
+    
+    call write_newline
+    call exit_program
+
+exit_newline:
+    call write_newline
+    call exit_program
+
+write_prompt:
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt
     mov edx, prompt_len
     int 80h
-    
+    ret
+
+read_input:
     mov eax, 3
     mov ebx, 0
     mov ecx, n
     mov edx, 2
     int 80h
-    
+    ret
+
+write_msg:
     mov eax, 4
     mov ebx, 1
     mov ecx, msg
     mov edx, msg_len
     int 80h
-    
-    movzx ecx, byte [n]
-    sub ecx, '0'
-    push ecx
-    call fibonacci
-    
+    ret
+
+write_newline:
     mov eax, 4
     mov ebx, 1
     mov ecx, newline
     mov edx, 1
     int 80h
-    
-    mov eax, 1
-    xor ebx, ebx
-    int 80h
+    ret
 
 fibonacci:
     push ebp
@@ -83,8 +100,10 @@ fib_loop:
     
     pop ecx
     dec ecx
-    jnz fib_loop
-    
+    jz end_fib_loop
+    jmp fib_loop
+
+end_fib_loop:
     mov esp, ebp
     pop ebp
     ret 4
@@ -108,3 +127,8 @@ add_nums:
     mov esp, ebp
     pop ebp
     ret 8
+
+exit_program:
+    mov eax, 1
+    mov ebx, 0
+    int 80h
