@@ -257,9 +257,9 @@ exp_loop:
     cmp bl, 0
     je exp_done
     
-    mul dl               ; multiply result by base
-    mov cl, al           ; save result
-    mov al, dl           ; restore base
+    mul dl           
+    mov cl, al         
+    mov al, dl        
     
     dec bl
     jmp exp_loop
