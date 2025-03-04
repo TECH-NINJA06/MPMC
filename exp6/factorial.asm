@@ -17,7 +17,6 @@ _start:
     
     push ecx
     call factorial
-
     call write_result
 
     mov eax, 1         
