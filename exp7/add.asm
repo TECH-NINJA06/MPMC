@@ -2,7 +2,7 @@ section .bss
     num_digits resb 1
     number1 resb 10
     number2 resb 10
-    result resb 11  ; Reserve enough space for result + null terminator
+    result resb 11
 
 section .data
     prompt1 db "Enter the number of digits: ", 0
@@ -14,14 +14,12 @@ section .text
     global _start
 
 _start:
-    ; Print prompt for num_digits
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt1
     mov edx, 28
     int 80h
 
-    ; Read num_digits
     mov eax, 3
     mov ebx, 0
     mov ecx, num_digits
@@ -29,37 +27,32 @@ _start:
     int 80h
     sub byte [num_digits], '0'
 
-    ; Print prompt for first number
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt2
     mov edx, 24
     int 80h
 
-    ; Read first number
     mov eax, 3
     mov ebx, 0
     mov ecx, number1
     mov edx, 10
     int 80h
-    mov byte [ecx + eax - 1], 0  ; Null-terminate
+    mov byte [ecx + eax - 1], 0
 
-    ; Print prompt for second number
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt3
     mov edx, 25
     int 80h
 
-    ; Read second number
     mov eax, 3
     mov ebx, 0
     mov ecx, number2
     mov edx, 10
     int 80h
-    mov byte [ecx + eax - 1], 0  ; Null-terminate
+    mov byte [ecx + eax - 1], 0
 
-    ; Convert first number from ASCII to integer
     xor eax, eax
     xor ebx, ebx
     mov ecx, num_digits
@@ -74,9 +67,8 @@ convert1:
     inc esi
     loop convert1
 end_convert1:
-    mov ebx, eax  ; Store first number in ebx
+    mov ebx, eax
 
-    ; Convert second number from ASCII to integer
     xor eax, eax
     xor edx, edx
     mov ecx, num_digits
@@ -92,10 +84,8 @@ convert2:
     loop convert2
 end_convert2:
 
-    ; Add numbers
     add eax, ebx
 
-    ; Convert result to ASCII
     mov esi, result + 10
     mov byte [esi], 0
     dec esi
@@ -110,7 +100,6 @@ convert_result:
     jnz convert_result
     inc esi
 
-    ; Print the result
     mov eax, 4
     mov ebx, 1
     mov ecx, esi
@@ -118,14 +107,12 @@ convert_result:
     sub edx, esi
     int 80h
 
-    ; Print newline
     mov eax, 4
     mov ebx, 1
     mov ecx, newline
     mov edx, 1
     int 80h
 
-    ; Exit
     mov eax, 1
     xor ebx, ebx
     int 80h
