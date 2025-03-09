@@ -118,7 +118,6 @@ convert_loop:
     int 80h
 
 print_result:
-    ; Print the result
     mov eax, 4
     mov ebx, 1
     mov ecx, esi
@@ -126,7 +125,6 @@ print_result:
     sub edx, esi
     int 80h
 
-    ; Print newline
     mov eax, 4
     mov ebx, 1
     mov ecx, newline
