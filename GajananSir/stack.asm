@@ -1,236 +1,136 @@
 section .data
-    prompt_msg db 'Stack Operations (1:push, 2:pop, 3:display, 0:exit):', 0
-    prompt_len equ $-prompt_msg
-    
-    push_prompt db 'Enter number to push (0-9):', 0
-    push_prompt_len equ $-push_prompt
-    
-    push_msg db 'Pushed: ', 0
-    push_len equ $-push_msg
-    
-    pop_msg db 'Popped: ', 0
-    pop_len equ $-pop_msg
-    
-    stack_msg db 'Stack (top to bottom): ', 0
-    stack_len equ $-stack_msg
-    
-    empty_msg db 'Stack is empty', 0
-    empty_len equ $-empty_msg
-    
-    error_msg db 'Stack underflow!', 0
-    error_len equ $-error_msg
-    
-    newline db 0xa
-    newline_len equ $-newline
-    
+    prompt_menu db "Stack Operations: ", 10
+                db "1. Push", 10
+                db "2. Pop", 10
+                db "3. Display", 10
+                db "4. Exit", 10
+                db "Enter your choice: "
+    prompt_menu_len equ $ - prompt_menu
+    prompt_push db "Enter a number to push (0-9): "
+    prompt_push_len equ $ - prompt_push
+    prompt_pop db "Popped value: "
+    prompt_pop_len equ $ - prompt_pop
+    prompt_display db "Stack contents: "
+    prompt_display_len equ $ - prompt_display
+    newline db 10
+    stack_empty_msg db "Stack is empty", 10
+    stack_empty_len equ $ - stack_empty_msg
+    stack_full_msg db "Stack is full", 10
+    stack_full_len equ $ - stack_full_msg
     space db ' '
-    space_len equ $-space
 
 section .bss
     choice resb 2
-    num resb 2
-    buffer resb 10
-    stack_data resb 100
-    stack_size equ 100
+    input resb 2
+    stack resb 10
+    top resd 1
 
 section .text
-    global _start
+global _start
+
+%macro write 2
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, %1
+    mov edx, %2
+    int 0x80
+%endmacro
+
+%macro read 2
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, %1
+    mov edx, %2
+    int 0x80
+%endmacro
 
 _start:
-    mov edi, stack_data
-    xor esi, esi
+    mov dword [top], stack
 
-do_while_loop:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, prompt_msg
-    mov edx, prompt_len
-    int 80h
-    
-    mov eax, 3
-    mov ebx, 0
-    mov ecx, choice
-    mov edx, 2
-    int 80h
-    
-    movzx eax, byte [choice]
-    sub eax, '0'
-    
-    cmp eax, 0
+menu_loop:
+    write prompt_menu, prompt_menu_len
+    read choice, 2
+    mov al, [choice]
+    sub al, '0'
+
+    cmp al, 1
+    je push_item
+    cmp al, 2
+    je pop_item
+    cmp al, 3
+    je display_stack
+    cmp al, 4
     je exit_program
-    
-    cmp eax, 1
-    je push_operation
-    
-    cmp eax, 2
-    je pop_operation
-    
-    cmp eax, 3
-    je display_stack_operation
-    
-    jmp do_while_loop
+    jmp menu_loop
 
-push_operation:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, push_prompt
-    mov edx, push_prompt_len
-    int 80h
-    
-    mov eax, 3
-    mov ebx, 0
-    mov ecx, num
-    mov edx, 2
-    int 80h
-    
-    movzx eax, byte [num]
-    sub eax, '0'
-    
-    cmp esi, stack_size
-    jae do_while_loop
-    
-    mov byte [edi + esi], al
-    inc esi
-    
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, push_msg
-    mov edx, push_len
-    int 80h
-    
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, num
-    mov edx, 1
-    int 80h
-    
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, newline
-    mov edx, newline_len
-    int 80h
-    
-    call display_stack
-    
-    jmp do_while_loop
+push_item:
+    mov eax, [top]
+    sub eax, stack
+    cmp eax, 10
+    je stack_full
 
-pop_operation:
-    cmp esi, 0
-    je stack_underflow
-    
-    dec esi
-    movzx eax, byte [edi + esi]
-    
-    add eax, '0'
-    mov byte [buffer], al
-    
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, pop_msg
-    mov edx, pop_len
-    int 80h
-    
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, buffer
-    mov edx, 1
-    int 80h
-    
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, newline
-    mov edx, newline_len
-    int 80h
-    
-    call display_stack
-    
-    jmp do_while_loop
+    write prompt_push, prompt_push_len
+    read input, 2
 
-stack_underflow:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, error_msg
-    mov edx, error_len
-    int 80h
-    
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, newline
-    mov edx, newline_len
-    int 80h
-    
-    jmp do_while_loop
+    mov al, [input]
+    sub al, '0'
+    mov ebx, [top]
+    mov [ebx], al
+    add dword [top], 1
 
-display_stack_operation:
-    call display_stack
-    jmp do_while_loop
+    jmp menu_loop
+
+pop_item:
+    mov eax, [top]
+    cmp eax, stack
+    je stack_empty
+
+    sub dword [top], 1
+    mov ebx, [top]
+    mov al, [ebx]
+    add al, '0'
+    mov [input], al
+
+    write prompt_pop, prompt_pop_len
+    write input, 1
+    write newline, 1
+
+    jmp menu_loop
 
 display_stack:
-    push eax
-    push ebx
-    push ecx
-    push edx
-    
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, stack_msg
-    mov edx, stack_len
-    int 80h
-    
-    cmp esi, 0
-    je empty_stack
-    
-    mov ecx, esi
-    dec ecx
-    
-display_loop:
-    movzx eax, byte [edi + ecx]
-    add eax, '0'
-    mov byte [buffer], al
-    
-    push ecx
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, buffer
-    mov edx, 1
-    int 80h
-    pop ecx
-    
-    push ecx
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, space
-    mov edx, space_len
-    int 80h
-    pop ecx
-    
-    dec ecx
-    jge display_loop
-    
-display_newline:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, newline
-    mov edx, newline_len
-    int 80h
-    
-    pop edx
-    pop ecx
-    pop ebx
-    pop eax
-    
-    ret
+    mov eax, [top]
+    cmp eax, stack
+    je stack_empty
 
-empty_stack:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, empty_msg
-    mov edx, empty_len
-    int 80h
-    
-    jmp display_newline
+    write prompt_display, prompt_display_len
+
+    mov ecx, stack
+display_loop:
+    cmp ecx, [top]
+    je display_done
+    mov al, [ecx]
+    add al, '0'
+    mov [input], al
+    push ecx
+    write input, 1
+    write space, 1
+    pop ecx
+    inc ecx
+    jmp display_loop
+
+display_done:
+    write newline, 1
+    jmp menu_loop
+
+stack_full:
+    write stack_full_msg, stack_full_len
+    jmp menu_loop
+
+stack_empty:
+    write stack_empty_msg, stack_empty_len
+    jmp menu_loop
 
 exit_program:
     mov eax, 1
-    mov ebx, 0
-    int 80h
+    xor ebx, ebx
+    int 0x80
