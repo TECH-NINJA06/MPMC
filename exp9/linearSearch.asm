@@ -6,7 +6,7 @@ section .data
     msg_not_found db "Element not found", 0xA
     newLine db 10, 0     
     index db 0                                     
-    prompt_array db "Enter 10 elements (space-separated): ", 0xA, 0
+    prompt_array db "Enter 10 elements: ", 0xA, 0
     prompt_key db "Enter the key to search: ", 0xA, 0
 
 section .bss
@@ -52,19 +52,16 @@ done_parsing:
     mov edx, 26
     int 0x80
 
-    ; Read key input
     mov eax, 3
     mov ebx, 0
     mov ecx, input_buffer
     mov edx, 2
     int 0x80
 
-    ; Parse key
     mov al, byte [input_buffer]
     sub al, '0'
     mov [key], al
 
-    ; Linear search logic
     xor esi, esi           
     movzx ecx, byte [size] 
     mov al, [key]          
