@@ -1,127 +1,186 @@
+%macro print 2
+    push eax
+    push ebx
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, %1
+    mov edx, %2
+    int 0x80
+    pop ebx
+    pop eax
+%endmacro
+%macro exit 0
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
+%endmacro
+%macro read_stdin 2
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, %1
+    mov edx, %2
+    int 0x80
+%endmacro
 section .data
-    size db 10                                   
-    key db 4                                     
-    found db 0                                   
-    msg_found db "Element found at index: ", 0xA  
-    msg_not_found db "Element not found", 0xA
-    newLine db 10, 0     
-    index db 0                                     
-    prompt_array db "Enter 10 elements: ", 0xA, 0
-    prompt_key db "Enter the key to search: ", 0xA, 0
-
+    index dd 0
+    prompt_size db "Enter the number of elements: ", 0
+    prompt_element db "Enter element ", 0
+    colon db ": ", 0
+    prompt_target db "Enter the target number to search: ", 0
+    msg_found db "Element found at index: ", 0
+    msg_not_found db "Element not found", 0
+    msg_iteration db "Iteration ", 0
+    msg_left db "  Left: ", 0
+    msg_right db ",  Right: ", 0
+    msg_mid db ",  Mid: ", 0
+    msg_value db ",  Value: ", 0
+    newline db 10, 0
 section .bss
-    array resb 10                                 
-    input_buffer resb 32                          
-    index_str resb 4  
-
+    array resd 100
+    size resd 1
+    target resd 1
+    buffer resb 10
+    iteration_count resd 1
+    left resd 1
+    right resd 1
 section .text
-    global _start
-
+global _start
 _start:
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, prompt_array
-    mov edx, 38
-    int 0x80
-
-    mov eax, 3
-    mov ebx, 0
-    mov ecx, input_buffer
-    mov edx, 32
-    int 0x80
-
-    xor esi, esi
-    xor edi, edi
-parse_array:
-    mov al, byte [input_buffer + esi]
-    cmp al, 0x20     
-    je skip_space
-    cmp al, 0xA   
-    je done_parsing
-    sub al, '0' 
-    mov [array + edi], al
-    inc edi
-skip_space:
-    inc esi
-    jmp parse_array
-done_parsing:
-
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, prompt_key
-    mov edx, 26
-    int 0x80
-
-    mov eax, 3
-    mov ebx, 0
-    mov ecx, input_buffer
-    mov edx, 2
-    int 0x80
-
-    mov al, byte [input_buffer]
-    sub al, '0'
-    mov [key], al
-
-    movzx ecx, byte [size]  
-    xor esi, esi           
-    mov al, [key]         
-
-    mov ebx, 0            
-    dec ecx               
-
-binary_search:
-    cmp ebx, ecx
-    jg not_found          
-
-    mov edx, ebx
-    add edx, ecx
-    shr edx, 1            
-
-    mov bl, [array + edx]
-    cmp al, bl
-    je found_element      
-
-    jb search_right        
-    mov ecx, edx
-    dec ecx               
-    jmp binary_search
-
-search_right:
-    mov ebx, edx
-    inc ebx             
-    jmp binary_search
-
-found_element:
-    mov byte [found], 1     
-    mov [index], edx         
-
+    print prompt_size, 30
+    call read_int
+    mov [size], eax
+    mov ecx, [size]
+    mov edi, array
+.input_loop:
+    push ecx
+    push edi
+    print prompt_element, 14
+    print colon, 2
+    call read_int
+    pop edi
+    mov [edi], eax
+    add edi, 4
+    pop ecx
+    loop .input_loop
+    print prompt_target, 34
+    call read_int
+    mov [target], eax
+    mov dword [left], 0
+    mov eax, [size]
+    dec eax
+    mov [right], eax
+    mov dword [iteration_count], 1
+.search_loop:
+    mov eax, [left]
+    cmp eax, [right]
+    jg .not_found
+    mov edx, eax
+    add edx, [right]
+    shr edx, 1
+    mov [index], edx
+    print msg_iteration, 10
+    mov eax, [iteration_count]
+    call print_int
+    print msg_left, 8
+    mov eax, [left]
+    call print_int
+    print msg_right, 9
+    mov eax, [right]
+    call print_int
+    print msg_mid, 7
     mov eax, [index]
-    add eax, '0'
-    mov [index_str], eax
-
-    mov eax, 4            
-    mov ebx, 1          
-    mov ecx, msg_found      
-    mov edx, 23            
-    int 0x80              
-
+    call print_int
+    print msg_value, 9
+    mov edx, [index]
+    mov eax, [array + edx * 4]
+    call print_int
+    print newline, 1
+    mov edx, [index]
+    mov esi, [array + edx * 4]
+    cmp [target], esi
+    je .found
+    jl .search_left
+    jg .search_right
+.search_left:
+    mov eax, [index]
+    dec eax
+    mov [right], eax
+    inc dword [iteration_count]
+    jmp .search_loop
+.search_right:
+    mov eax, [index]
+    inc eax
+    mov [left], eax
+    inc dword [iteration_count]
+    jmp .search_loop
+.found:
+    print msg_found, 24
+    mov eax, [index]
+    call print_int
+    print newline, 1
+    jmp .exit
+.not_found:
+    print msg_not_found, 17
+    print newline, 1
+.exit:
+    exit
+read_int:
+    push ebx
+    push ecx
+    push edx
+    push esi
+    read_stdin buffer, 10
+    mov ecx, eax
+    mov esi, buffer
+    xor eax, eax
+.convert_loop:
+    movzx edx, byte [esi]
+    inc esi
+    cmp edx, 0
+    je .done
+    cmp edx, 10
+    je .done
+    cmp edx, '0'
+    jl .invalid
+    cmp edx, '9'
+    jg .invalid
+    sub edx, '0'
+    imul eax, 10
+    add eax, edx
+    loop .convert_loop
+.done:
+    pop esi
+    pop edx
+    pop ecx
+    pop ebx
+    ret
+.invalid:
+    xor eax, eax
+    jmp .done
+print_int:
+    push eax
+    push ecx
+    push edx
+    push edi
+    mov ecx, 10
+    mov edi, buffer + 9
+    mov byte [edi], 0
+.convert_loop:
+    xor edx, edx
+    div ecx
+    add dl, '0'
+    dec edi
+    mov [edi], dl
+    test eax, eax
+    jnz .convert_loop
     mov eax, 4
     mov ebx, 1
-    mov ecx, index_str
-    mov edx, 1
+    mov ecx, edi
+    mov edx, buffer + 9
+    sub edx, edi
     int 0x80
-
-    jmp end_program       
-
-not_found:
-    mov byte [found], 0     
-    mov eax, 4             
-    mov ebx, 1              
-    mov ecx, msg_not_found  
-    mov edx, 18           
-    int 0x80   
-
-end_program:   
-    mov eax, 1             
-    xor ebx, ebx         
-    int 0x80 
+    pop edi
+    pop edx
+    pop ecx
+    pop eax
+    ret
