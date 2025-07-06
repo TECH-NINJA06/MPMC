@@ -1,26 +1,11 @@
-%macro print 2
-    push eax
-    push ebx
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, %1
-    mov edx, %2
-    int 0x80
-    pop ebx
-    pop eax
-%endmacro
+; Removed print and read_stdin macros
+
 %macro exit 0
     mov eax, 1
     xor ebx, ebx
     int 0x80
 %endmacro
-%macro read_stdin 2
-    mov eax, 3
-    mov ebx, 0
-    mov ecx, %1
-    mov edx, %2
-    int 0x80
-%endmacro
+
 section .data
     prompt_size db "Enter the number of elements: ", 0
     prompt_element db "Enter element: ", 0
@@ -31,61 +16,109 @@ section .data
     msg_checking db ", Checking index: ", 0
     msg_value db ", Value: ", 0
     newline db 10, 0
+
 section .bss
     array resd 100
     size resd 1
     target resd 1
     buffer resb 10
     current resd 1
+
 section .text
-global _start
+    global _start
+
 _start:
-    print prompt_size, 30
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, prompt_size
+    mov edx, 30
+    int 0x80
     call read_int
     mov [size], eax
     xor ebx, ebx
+
 input_loop:
     cmp ebx, [size]
     jge input_done
-    print prompt_element, 15
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, prompt_element
+    mov edx, 15
+    int 0x80
     call read_int
     mov [array + ebx*4], eax
     inc ebx
     jmp input_loop
 input_done:
-    print prompt_target, 34
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, prompt_target
+    mov edx, 34
+    int 0x80
     call read_int
     mov [target], eax
     xor ebx, ebx
 search_loop:
     cmp ebx, [size]
     jge not_found
-    print msg_iteration, 10
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg_iteration
+    mov edx, 10
+    int 0x80
     mov eax, ebx
     inc eax
     call print_int
-    print msg_checking, 18
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg_checking
+    mov edx, 18
+    int 0x80
     mov eax, ebx
     call print_int
-    print msg_value, 9
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg_value
+    mov edx, 9
+    int 0x80
     mov eax, [array + ebx*4]
     mov [current], eax
     call print_int
-    print newline, 1
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 0x80
     mov eax, [current]
     cmp eax, [target]
     je found
     inc ebx
     jmp search_loop
 found:
-    print msg_found, 24
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg_found
+    mov edx, 24
+    int 0x80
     mov eax, ebx
     call print_int
-    print newline, 1
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 0x80
     jmp exit_program
 not_found:
-    print msg_not_found, 17
-    print newline, 1
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg_not_found
+    mov edx, 17
+    int 0x80
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, newline
+    mov edx, 1
+    int 0x80
 exit_program:
     exit
 read_int:
@@ -93,7 +126,11 @@ read_int:
     push ecx
     push edx
     push esi
-    read_stdin buffer, 10
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, buffer
+    mov edx, 10
+    int 0x80
     dec eax
     mov ecx, eax
     mov esi, buffer
@@ -130,7 +167,11 @@ print_int:
     jnz non_zero
     mov byte [buffer], '0'
     mov byte [buffer+1], 0
-    print buffer, 1
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, buffer
+    mov edx, 1
+    int 0x80
     jmp print_int_done
 non_zero:
     mov ecx, 10

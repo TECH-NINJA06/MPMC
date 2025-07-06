@@ -42,7 +42,6 @@ parse_loop:
     cmp byte [esi], 10
     je skip_space
     xor eax, eax
-
 parse_digit:
     movzx ecx, byte [esi]
     cmp ecx, '0'
@@ -54,12 +53,10 @@ parse_digit:
     add eax, ecx
     inc esi
     jmp parse_digit
-
 store_number:
     mov [array + edi*4], eax
     inc edi
     jmp parse_loop
-
 skip_space:
     inc esi
     jmp parse_loop

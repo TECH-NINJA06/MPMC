@@ -1,9 +1,9 @@
 section .data
-    prompt_msg db "Enter 5 integers separated by space (Insertion):  ", 0
+    prompt_msg db "Enter 5 integers separated by space (Insertion): ", 0
     prompt_len equ $ - prompt_msg
     iter_msg db "Iteration ", 0
     iter_len equ $ - iter_msg
-    colon_msg db ":  ", 0
+    colon_msg db ": ", 0
     colon_len equ $ - colon_msg
     space db " ", 0
     newline db 10, 0
@@ -12,14 +12,13 @@ section .data
     buffer times 100 db 0
 
 section .bss
-    iter_count resb 1
     num_buffer resb 12
 
 section .text
     global _start
 
 _start:
-    ; Print prompt
+    ; Prompt
     mov eax, 4
     mov ebx, 1
     mov ecx, prompt_msg
@@ -33,194 +32,169 @@ _start:
     mov edx, 100
     int 0x80
 
-    ; Parse input
+    ; Parse space-separated integers
     mov esi, buffer
     mov edi, 0
-
 parse_loop:
     cmp edi, array_size
     jge start_sorting
-    cmp byte [esi], ' '
-    je skip_space
-    cmp byte [esi], 10
-    je skip_space
     xor eax, eax
+.skip_spaces:
+    cmp byte [esi], ' '
+    je .advance
+    cmp byte [esi], 10
+    je .advance
+    jmp .parse_digit
+.advance:
+    inc esi
+    jmp .skip_spaces
 
-parse_digit:
+.parse_digit:
     movzx ecx, byte [esi]
     cmp ecx, '0'
-    jl store_number
+    jb .store
     cmp ecx, '9'
-    jg store_number
+    ja .store
     sub ecx, '0'
-    imul eax, 10
+    imul eax, eax, 10
     add eax, ecx
     inc esi
-    jmp parse_digit
+    jmp .parse_digit
 
-store_number:
+.store:
     mov [array + edi*4], eax
     inc edi
     jmp parse_loop
 
-skip_space:
-    inc esi
-    jmp parse_loop
-
+; --------------------
+; Insertion Sort
+; --------------------
 start_sorting:
-    mov byte [iter_count], 0
-    mov ecx, 1
+    mov ecx, 1 ; current index
 
 outer_loop:
     cmp ecx, array_size
     jge exit_program
-    
-    inc byte [iter_count]
-    
+
+    ; Print "Iteration X: "
     push ecx
     mov eax, 4
     mov ebx, 1
     mov ecx, iter_msg
     mov edx, iter_len
     int 0x80
-    
-    movzx eax, byte [iter_count]
+
+    pop eax
     call int_to_string
-    push eax
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, num_buffer
-    pop edx
-    int 0x80
-    
+    call print_num_buffer
+
     mov eax, 4
     mov ebx, 1
     mov ecx, colon_msg
     mov edx, colon_len
     int 0x80
-    
-    pop ecx
-    
-    mov eax, [array + ecx*4]
-    mov edx, ecx      
-    dec edx            
 
-inner_loop:
-    cmp edx, 0
-    jl insert_element
-    
+    ; Perform insertion
+    mov eax, [array + ecx*4]  ; key = array[i]
+    mov edx, ecx
+    dec edx
+
+shift_loop:
+    cmp edx, -1
+    jl insert_key
     mov ebx, [array + edx*4]
     cmp ebx, eax
-    jle insert_element
-    
-    mov [array + edx*4 + 4], ebx  
+    jle insert_key
+    mov [array + edx*4 + 4], ebx
     dec edx
-    jmp inner_loop
+    jmp shift_loop
 
-insert_element:
-    mov [array + edx*4 + 4], eax  
-    
+insert_key:
+    mov [array + edx*4 + 4], eax
     call display_array
-    inc ecx                   
+    inc ecx
     jmp outer_loop
 
-exit_program:
-    mov eax, 1
-    xor ebx, ebx
-    int 0x80
-
+; --------------------
+; Display array
+; --------------------
 display_array:
     push ecx
-    push edx
     mov ecx, 0
-
-display_loop:
+.display_loop:
     cmp ecx, array_size
-    jge display_done
+    jge .done
     mov eax, [array + ecx*4]
     call int_to_string
-    push ecx
-    push eax
-    mov eax, 4
-    mov ebx, 1
-    mov ecx, num_buffer
-    pop edx
-    int 0x80
-    pop ecx
-    inc ecx
-    cmp ecx, array_size
-    jge skip_space_display
-    push ecx
+    call print_num_buffer
+    cmp ecx, array_size - 1
+    jge .no_space
     mov eax, 4
     mov ebx, 1
     mov ecx, space
     mov edx, 1
     int 0x80
-    pop ecx
-
-skip_space_display:
-    jmp display_loop
-
-display_done:
+.no_space:
+    inc ecx
+    jmp .display_loop
+.done:
     mov eax, 4
     mov ebx, 1
     mov ecx, newline
     mov edx, 1
     int 0x80
-    pop edx
     pop ecx
     ret
 
+; --------------------
+; Print num_buffer (string form of EAX)
+; --------------------
+print_num_buffer:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, num_buffer
+    mov edx, 12
+    int 0x80
+    ret
+
+; --------------------
+; Convert integer in EAX to string in num_buffer
+; --------------------
 int_to_string:
-    push ebx
-    push ecx
-    push edx
-    push esi
-    push edi
-    mov esi, num_buffer
-    add esi, 11
-    mov byte [esi], 0
+    mov edi, num_buffer
+    add edi, 11
+    mov byte [edi], 0
     mov ebx, 10
     test eax, eax
-    jnz .convert_loop
-    dec esi
-    mov byte [esi], '0'
-    jmp .done
+    jnz .convert
+    dec edi
+    mov byte [edi], '0'
+    jmp .copy
 
-.convert_loop:
-    test eax, eax
-    jz .done
+.convert:
     xor edx, edx
+.loop:
     div ebx
     add dl, '0'
-    dec esi
-    mov [esi], dl
-    jmp .convert_loop
+    dec edi
+    mov [edi], dl
+    test eax, eax
+    jnz .loop
 
-.done:
+.copy:
+    mov esi, edi
     mov edi, num_buffer
-    mov eax, num_buffer
-    add eax, 11
-    sub eax, esi
-    mov ecx, eax
-    cld
-
 .copy_loop:
-    cmp ecx, 0
-    je .copy_done
     mov al, [esi]
     mov [edi], al
     inc esi
     inc edi
-    dec ecx
-    jmp .copy_loop
-
-.copy_done:
-    mov eax, edi
-    sub eax, num_buffer
-    pop edi
-    pop esi
-    pop edx
-    pop ecx
-    pop ebx
+    cmp byte [esi], 0
+    jne .copy_loop
+    mov byte [edi], 0
     ret
+
+exit_program:
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80

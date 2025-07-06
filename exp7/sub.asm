@@ -70,7 +70,6 @@ convert1:
     loop convert1
 end_convert1:
     mov ebx, eax 
-
     xor eax, eax
     xor edx, edx
     mov ecx, num_digits

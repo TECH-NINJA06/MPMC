@@ -21,6 +21,7 @@
     mov edx, %2
     int 0x80
 %endmacro
+
 section .data
     index dd 0
     prompt_size db "Enter the number of elements: ", 0
@@ -35,6 +36,7 @@ section .data
     msg_mid db ",  Mid: ", 0
     msg_value db ",  Value: ", 0
     newline db 10, 0
+
 section .bss
     array resd 100
     size resd 1
@@ -43,8 +45,10 @@ section .bss
     iteration_count resd 1
     left resd 1
     right resd 1
+
 section .text
-global _start
+    global _start
+
 _start:
     print prompt_size, 30
     call read_int

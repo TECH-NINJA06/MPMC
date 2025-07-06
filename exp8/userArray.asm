@@ -8,11 +8,11 @@ space db ' '
 num db '5'
 
 %macro write 2
-	mov eax,4
-	mov ebx,1
-	mov ecx, %1
-	mov edx, %2
-	int 80h
+mov eax,4
+mov ebx,1
+mov ecx, %1
+mov edx, %2
+int 80h
 %endmacro
  
 %macro read 2

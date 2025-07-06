@@ -73,6 +73,7 @@ end_convert1:
     xor edx, edx
     mov ecx, num_digits
     mov esi, number2
+    
 convert2:
     mov dl, [esi]
     cmp dl, 0
@@ -85,7 +86,6 @@ convert2:
 end_convert2:
 
     add eax, ebx
-
     mov esi, result + 10
     mov byte [esi], 0
     dec esi
@@ -96,7 +96,7 @@ convert_result:
     add dl, '0'
     mov [esi], dl
     dec esi
-    test eax, eax
+    cmp eax, 0
     jnz convert_result
     inc esi
 
